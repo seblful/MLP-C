@@ -1,1 +1,8 @@
+# Data
+data/
+
+# Cache
 .vscode
+
+# Ececutables
+.exe
