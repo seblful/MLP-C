@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "mnist.h"
 
 // ==== CONSTANTS ====
 #define TRAIN_SIZE 60000
@@ -24,41 +25,17 @@ typedef struct
 } DataItem;
 
 // Functions declaration
-void readFile();
 
 int main()
 {
-    // Create train and test arrays with data items
-    DataItem *trainData = (DataItem *)malloc(sizeof(TRAIN_SIZE));
-    DataItem *testData = (DataItem *)malloc(sizeof(TEST_SIZE));
+    // DataItem *trainData = (DataItem *)malloc(TRAIN_SIZE * sizeof(DataItem));
+    // DataItem *testData = (DataItem *)malloc(TEST_SIZE * sizeof(DataItem));
+
+    uint8_t **images;
 
     // Load train and test data
-    readFile(trainData, trainImageFilename, trainLabelFilename, TRAIN_SIZE);
-    readFile(testData, testImageFilename, testLabelFilename, TEST_SIZE);
+
+    images = read_mnist_images(trainImageFilename);
 
     return 0;
 };
-
-void readFile(DataItem *arr, const char image_filename[], const char label_filename[], int n)
-{
-    FILE *images = fopen(image_filename, "rb");
-    FILE *labels = fopen(label_filename, "rb");
-    unsigned char c;
-    for (int i = 0; i < IMAGE_HEADER_SIZE; i++)
-    {
-        fgetc(images);
-    };
-    for (int i = 0; i < LABEL_HEADER_SIZE; i++)
-        fgetc(labels);
-
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < INPUT_SIZE; j++)
-        {
-            c = fgetc(images);
-            arr[i].input[j] = (double)c / 255;
-        }
-        c = fgetc(labels);
-        arr[i].output[c] = 1.0;
-    }
-}
