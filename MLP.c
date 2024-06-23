@@ -8,16 +8,13 @@
 #define OUTPUT_SIZE 10
 
 // ==== DATA ====
-const char train_image_filename[] = "mnist_data/train-images.idx3-ubyte";
-const char train_label_filename[] = "mnist_data/train-labels.idx1-ubyte";
-const char test_image_filename[] = "mnist_data/t10k-images.idx3-ubyte";
-const char test_label_filename[] = "mnist_data/t10k-labels.idx1-ubyte";
+const char trainImageFilename[] = "mnist_data/train-images.idx3-ubyte";
+const char trainLabelFilename[] = "mnist_data/train-labels.idx1-ubyte";
+const char testImageFilename[] = "mnist_data/t10k-images.idx3-ubyte";
+const char testLabelFilename[] = "mnist_data/t10k-labels.idx1-ubyte";
 
 const int IMAGE_HEADER_SIZE = 16;
 const int LABEL_HEADER_SIZE = 8;
-
-// Functions declaration
-void read_file();
 
 // Structs
 typedef struct
@@ -26,23 +23,31 @@ typedef struct
     double output[OUTPUT_SIZE];
 } DataItem;
 
-DataItem train_data[TRAIN_SIZE];
-DataItem test_data[TEST_SIZE];
+// Functions declaration
+void readFile();
 
 int main()
 {
-    DataItem a;
-    a = train_data[0];
+    // Create train and test arrays with data items
+    DataItem *trainData = (DataItem *)malloc(sizeof(TRAIN_SIZE));
+    DataItem *testData = (DataItem *)malloc(sizeof(TEST_SIZE));
+
+    // Load train and test data
+    readFile(trainData, trainImageFilename, trainLabelFilename, TRAIN_SIZE);
+    readFile(testData, testImageFilename, testLabelFilename, TEST_SIZE);
+
     return 0;
 };
 
-void read_file(DataItem *arr, const char image_filename[], const char label_filename[], int n)
+void readFile(DataItem *arr, const char image_filename[], const char label_filename[], int n)
 {
     FILE *images = fopen(image_filename, "rb");
     FILE *labels = fopen(label_filename, "rb");
     unsigned char c;
     for (int i = 0; i < IMAGE_HEADER_SIZE; i++)
+    {
         fgetc(images);
+    };
     for (int i = 0; i < LABEL_HEADER_SIZE; i++)
         fgetc(labels);
 
