@@ -15,9 +15,9 @@ uint32_t read_uint32(FILE *file)
 // Function to read MNIST images
 uint8_t **read_mnist_images(const char *filename)
 {
-    int *number_of_images;
-    int *rows;
-    int *cols;
+    int number_of_images;
+    int rows;
+    int cols;
 
     FILE *file = fopen(filename, "rb");
     if (file == NULL)
@@ -36,16 +36,16 @@ uint8_t **read_mnist_images(const char *filename)
     }
 
     // Read the number of images, rows, and columns
-    *number_of_images = read_uint32(file);
-    *rows = read_uint32(file);
-    *cols = read_uint32(file);
+    number_of_images = read_uint32(file);
+    rows = read_uint32(file);
+    cols = read_uint32(file);
 
     // Allocate memory for the images
-    uint8_t **images = (uint8_t **)malloc(*number_of_images * sizeof(uint8_t *));
-    for (int i = 0; i < *number_of_images; i++)
+    uint8_t **images = (uint8_t **)malloc(number_of_images * sizeof(uint8_t *));
+    for (int i = 0; i < number_of_images; i++)
     {
-        images[i] = (uint8_t *)malloc(*rows * *cols * sizeof(uint8_t));
-        fread(images[i], 1, *rows * *cols, file);
+        images[i] = (uint8_t *)malloc(rows * cols * sizeof(uint8_t));
+        fread(images[i], 1, rows * cols, file);
     }
 
     fclose(file);
@@ -53,8 +53,10 @@ uint8_t **read_mnist_images(const char *filename)
 }
 
 // Function to read MNIST labels
-uint8_t *read_mnist_labels(const char *filename, int *number_of_labels)
+uint8_t *read_mnist_labels(const char *filename)
 {
+    int number_of_labels;
+
     FILE *file = fopen(filename, "rb");
     if (file == NULL)
     {
@@ -72,11 +74,11 @@ uint8_t *read_mnist_labels(const char *filename, int *number_of_labels)
     }
 
     // Read the number of labels
-    *number_of_labels = read_uint32(file);
+    number_of_labels = read_uint32(file);
 
     // Allocate memory for the labels
-    uint8_t *labels = (uint8_t *)malloc(*number_of_labels * sizeof(uint8_t));
-    fread(labels, 1, *number_of_labels, file);
+    uint8_t *labels = (uint8_t *)malloc(number_of_labels * sizeof(uint8_t));
+    fread(labels, 1, number_of_labels, file);
 
     fclose(file);
     return labels;
