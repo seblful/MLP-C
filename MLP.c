@@ -6,8 +6,8 @@
 #define TRAIN_SIZE 60000
 #define TEST_SIZE 10000
 
-#define INPUT_SIZE 784
-#define OUTPUT_SIZE 10
+#define IMAGE_SIZE 784
+#define LABEL_SIZE 10
 
 // ==== DATA ====
 const char trainImageFilename[] = "data/train-images.idx3-ubyte";
@@ -15,32 +15,33 @@ const char trainLabelFilename[] = "data/train-labels.idx1-ubyte";
 const char testImageFilename[] = "data/t10k-images.idx3-ubyte";
 const char testLabelFilename[] = "data/t10k-labels.idx1-ubyte";
 
-// Structs
-typedef struct
-{
-    double input[INPUT_SIZE];
-    double output[OUTPUT_SIZE];
-} DataItem;
+// // Structs
+// typedef struct
+// {
+//     double input[INPUT_SIZE];
+//     double output[OUTPUT_SIZE];
+// } DataItem;
 
 // Functions declaration
 
 int main()
 {
-    // DataItem *trainData = (DataItem *)malloc(TRAIN_SIZE * sizeof(DataItem));
-    // DataItem *testData = (DataItem *)malloc(TEST_SIZE * sizeof(DataItem));
+    DataItem *trainData, *testData;
 
-    uint8_t **trainImages, **testImages;
-    uint8_t *trainLabels, *testLabels;
+    trainData = createDataItem(trainImageFilename, trainLabelFilename, TRAIN_SIZE, IMAGE_SIZE, LABEL_SIZE);
 
-    // Load train and test data
-    trainImages = read_mnist_images(trainImageFilename);
-    trainLabels = read_mnist_labels(trainLabelFilename);
+    // uint8_t **trainImages, **testImages;
+    // uint8_t *trainLabels, *testLabels;
 
-    testImages = read_mnist_images(testImageFilename);
-    testLabels = read_mnist_labels(testLabelFilename);
+    // // Load train and test data
+    // trainImages = read_mnist_images(trainImageFilename);
+    // trainLabels = read_mnist_labels(trainLabelFilename);
 
-    // Print MNIST image by index
-    printMnist(trainImages, trainLabels, 0);
+    // testImages = read_mnist_images(testImageFilename);
+    // testLabels = read_mnist_labels(testLabelFilename);
+
+    // // Print MNIST image by index
+    // printMnist(trainImages, trainLabels, 0);
 
     return 0;
 };

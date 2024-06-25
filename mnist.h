@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+// Structs prototypes
+typedef struct DataItem DataItem;
+
 // Function prototypes
 uint32_t read_uint32(FILE *file);
 
@@ -15,5 +18,11 @@ uint8_t **read_mnist_images(const char *filename);
 uint8_t *read_mnist_labels(const char *filename);
 
 void printMnist(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex);
+
+DataItem *createDataItem(const char *imageFileame,
+                         const char *labelFileame,
+                         int setSize,
+                         int imageSize,
+                         int labelSize);
 
 #endif // MNIST_H

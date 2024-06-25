@@ -5,6 +5,33 @@
 
 #include "mnist.h"
 
+struct DataItem
+{
+    double **data;
+    double *label;
+};
+
+DataItem *createDataItem(const char *imageFileame,
+                         const char *labelFileame,
+                         int setSize,
+                         int imageSize,
+                         int labelSize)
+{
+    uint8_t **images, *labels;
+
+    DataItem *item = (DataItem *)malloc(setSize * sizeof(DataItem));
+    item->data = (double **)malloc(imageSize * sizeof(double));
+    item->label = (double *)malloc(labelSize * sizeof(double));
+
+    // Load images and labels in uint8
+    images = read_mnist_images(imageFileame);
+    labels = read_mnist_labels(labelFileame);
+
+    // Set images and labels data in item in proper format
+
+    return item;
+};
+
 // Function to read 4 bytes from a file and convert to a 32-bit integer
 uint32_t read_uint32(FILE *file)
 {
