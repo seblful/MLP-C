@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "mnist.h"
 
@@ -10,6 +11,20 @@ uint32_t read_uint32(FILE *file)
     uint8_t buffer[4];
     fread(buffer, 1, 4, file);
     return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
+};
+
+// Function to read magic number and validate it
+bool isValidMagicNumber(FILE *file, const char *filename, uint32_t validMagicNumber)
+{
+    // Read the magic number and validate it
+    uint32_t magicNumber = read_uint32(file);
+    if (magicNumber != validMagicNumber)
+    {
+        fprintf(stderr, "Invalid magic number in %s\n", filename);
+        fclose(file);
+        return false;
+    }
+    return true;
 };
 
 // Function to read MNIST images
@@ -27,13 +42,10 @@ uint8_t **read_mnist_images(const char *filename)
     }
 
     // Read the magic number and validate it
-    uint32_t magic_number = read_uint32(file);
-    if (magic_number != 2051)
+    if (isValidMagicNumber(file, filename, 2051) == false)
     {
-        fprintf(stderr, "Invalid magic number in %s\n", filename);
-        fclose(file);
         return NULL;
-    }
+    };
 
     // Read the number of images, rows, and columns
     number_of_images = read_uint32(file);
@@ -65,13 +77,10 @@ uint8_t *read_mnist_labels(const char *filename)
     }
 
     // Read the magic number and validate it
-    uint32_t magic_number = read_uint32(file);
-    if (magic_number != 2049)
+    if (isValidMagicNumber(file, filename, 2049) == false)
     {
-        fprintf(stderr, "Invalid magic number in %s\n", filename);
-        fclose(file);
         return NULL;
-    }
+    };
 
     // Read the number of labels
     number_of_labels = read_uint32(file);
