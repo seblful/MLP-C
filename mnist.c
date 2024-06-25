@@ -13,6 +13,16 @@ uint32_t read_uint32(FILE *file)
     return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
 };
 
+bool isValidFile(FILE *file, const char *filename)
+{
+    if (file == NULL)
+    {
+        fprintf(stderr, "Could not open file %s\n", filename);
+        return false;
+    };
+    return true;
+};
+
 // Function to read magic number and validate it
 bool isValidMagicNumber(FILE *file, const char *filename, uint32_t validMagicNumber)
 {
@@ -34,12 +44,13 @@ uint8_t **read_mnist_images(const char *filename)
     int rows;
     int cols;
 
+    // Open file and validate it
     FILE *file = fopen(filename, "rb");
-    if (file == NULL)
+    if (isValidFile(file, filename) == false)
     {
-        fprintf(stderr, "Could not open file %s\n", filename);
+        fclose(file);
         return NULL;
-    }
+    };
 
     // Read the magic number and validate it
     if (isValidMagicNumber(file, filename, 2051) == false)
@@ -70,11 +81,11 @@ uint8_t *read_mnist_labels(const char *filename)
     int number_of_labels;
 
     FILE *file = fopen(filename, "rb");
-    if (file == NULL)
+    if (isValidFile(file, filename) == false)
     {
-        fprintf(stderr, "Could not open file %s\n", filename);
+        fclose(file);
         return NULL;
-    }
+    };
 
     // Read the magic number and validate it
     if (isValidMagicNumber(file, filename, 2049) == false)
