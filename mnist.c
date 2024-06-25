@@ -10,7 +10,7 @@ uint32_t read_uint32(FILE *file)
     uint8_t buffer[4];
     fread(buffer, 1, 4, file);
     return (buffer[0] << 24) | (buffer[1] << 16) | (buffer[2] << 8) | buffer[3];
-}
+};
 
 // Function to read MNIST images
 uint8_t **read_mnist_images(const char *filename)
@@ -50,7 +50,7 @@ uint8_t **read_mnist_images(const char *filename)
 
     fclose(file);
     return images;
-}
+};
 
 // Function to read MNIST labels
 uint8_t *read_mnist_labels(const char *filename)
@@ -82,4 +82,22 @@ uint8_t *read_mnist_labels(const char *filename)
 
     fclose(file);
     return labels;
-}
+};
+
+void printMnist(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex)
+{
+    uint8_t size = 28;
+
+    // Print label
+    printf("Label of image is %d.\n", labelsArray[imageIndex]);
+
+    // Print array with alignment
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            printf("%3d ", imagesArray[imageIndex][i * size + j]);
+        }
+        printf("\n");
+    };
+};
