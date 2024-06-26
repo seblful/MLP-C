@@ -171,6 +171,20 @@ void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageInde
     };
 };
 
-void printMnistItem(DataItem *item, int imageIndex, int imageSize) {
+void printMnistItem(DataItem *item, int imageIndex, int imageSize)
+{
+    int side = (int)sqrt((double)imageSize);
 
+    // Print label
+    printf("Label of image is %d.\n", item->label[imageIndex]);
+
+    // Print array with alignment
+    for (int i = 0; i < side; i++)
+    {
+        for (int j = 0; j < side; j++)
+        {
+            printf("%.0f ", item->data[imageIndex][i * side + j]);
+        }
+        printf("\n");
+    };
 };
