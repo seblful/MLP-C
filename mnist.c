@@ -8,8 +8,7 @@
 
 struct DataItem
 {
-    // double **data;
-    double *data;
+    double **image;
     uint8_t *label;
 };
 
@@ -20,6 +19,7 @@ DataItem *createDataItem(const char *imageFileame,
                          int labelSize)
 {
     uint8_t **images, *labels;
+    int side = (int)sqrt((double)imageSize);
     double temp;
 
     // Allocate memory for DataItem
@@ -27,16 +27,21 @@ DataItem *createDataItem(const char *imageFileame,
 
     for (int i = 0; i < setSize; i++)
     {
-        items[i].data = (double *)malloc(imageSize * sizeof(double));
+        items[i].image = (double **)malloc(side * sizeof(double *));
         items[i].label = (uint8_t *)malloc(labelSize * sizeof(uint8_t));
+
+        // Allocate memory for data 1d array
+        for (int j = 0; j < side; j++)
+        {
+            items[i].image[j] = (double *)malloc(side * sizeof(double));
+        }
+
         // Set all labels to zero
         for (int j = 0; j < labelSize; j++)
         {
             items[i].label[j] = 0;
         };
     };
-
-    // printf("%f\n", items[0].data[0]);
 
     // Load images and labels in uint8
     images = read_mnist_images(imageFileame);
@@ -46,13 +51,18 @@ DataItem *createDataItem(const char *imageFileame,
     // Iterate in range of set size
     for (int i = 0; i < setSize; i++)
     {
-
-        // Convert images to double format, standardize them and set to data
-        for (int j = 0; j < imageSize; j++)
+        // Convert image to 2d array
+        for (int j = 0; j < side; j++)
         {
-            temp = ((double)images[i][j]) / 255.0;
-            items[i].data[j] = temp;
+            for (int k = 0; k < side; k++)
+            {
+                // Convert values to double format and standardize
+                temp = ((double)images[i][j * 28 + k]) / 255.0;
+                items[i].image[j][k] = temp;
+            };
         };
+
+        // Set label
         items[i].label[labels[i] - 1] = labels[i];
     };
 
@@ -200,7 +210,7 @@ void printMnistItem(DataItem *items, int imageIndex, int imageSize)
     {
         for (int j = 0; j < side; j++)
         {
-            printf("%1.0f ", items[imageIndex].data[i * side + j]);
+            printf("%1.0f ", items[imageIndex].image[i][j]);
         }
         printf("\n");
     };
