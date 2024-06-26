@@ -18,7 +18,7 @@ uint8_t **read_mnist_images(const char *filename);
 uint8_t *read_mnist_labels(const char *filename);
 
 void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex, int imageSize);
-void printMnistItem(DataItem *item, int imageIndex, int imageSize);
+void printMnistItem(DataItem *items, int imageIndex, int imageSize);
 
 DataItem *createDataItem(const char *imageFileame,
                          const char *labelFileame,
