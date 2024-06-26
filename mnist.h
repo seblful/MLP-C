@@ -17,7 +17,8 @@ bool isValidMagicNumber(FILE *file, const char *filename, uint32_t validMagicNum
 uint8_t **read_mnist_images(const char *filename);
 uint8_t *read_mnist_labels(const char *filename);
 
-void printMnist(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex);
+void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex, int imageSize);
+void printMnistItem(DataItem *item, int imageIndex, int imageSize);
 
 DataItem *createDataItem(const char *imageFileame,
                          const char *labelFileame,
