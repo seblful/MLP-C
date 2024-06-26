@@ -183,7 +183,7 @@ void printMnistItem(DataItem *item, int imageIndex, int imageSize)
     {
         for (int j = 0; j < side; j++)
         {
-            printf("%.0f ", item->data[imageIndex][i * side + j]);
+            printf("%3.0f ", item->data[imageIndex][i * side + j]);
         }
         printf("\n");
     };
