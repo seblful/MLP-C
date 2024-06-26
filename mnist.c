@@ -9,7 +9,7 @@
 struct DataItem
 {
     // double **data;
-    double **data;
+    double *data;
     uint8_t *label;
 };
 
@@ -23,15 +23,20 @@ DataItem *createDataItem(const char *imageFileame,
     double temp;
 
     // Allocate memory for DataItem
-    DataItem *item = (DataItem *)malloc(setSize * sizeof(DataItem));
+    DataItem *items = (DataItem *)malloc(setSize * sizeof(DataItem));
 
-    item->data = (double **)malloc(setSize * sizeof(double *));
     for (int i = 0; i < setSize; i++)
     {
-        item->data[i] = (double *)malloc(imageSize * sizeof(double));
+        items[i].data = (double *)malloc(imageSize * sizeof(double));
+        items[i].label = (uint8_t *)malloc(labelSize * sizeof(uint8_t));
+        // Set all labels to zero
+        for (int j = 0; j < labelSize; j++)
+        {
+            items[i].label[j] = 0;
+        };
     };
 
-    item->label = (uint8_t *)malloc(setSize * sizeof(uint8_t));
+    // printf("%f\n", items[0].data[0]);
 
     // Load images and labels in uint8
     images = read_mnist_images(imageFileame);
@@ -46,12 +51,12 @@ DataItem *createDataItem(const char *imageFileame,
         for (int j = 0; j < imageSize; j++)
         {
             temp = ((double)images[i][j]) / 255.0;
-            item->data[i][j] = temp;
+            items[i].data[j] = temp;
         };
-        item->label[i] = labels[i];
+        items[i].label[labels[i] - 1] = labels[i];
     };
 
-    return item;
+    return items;
 };
 
 // Function to read 4 bytes from a file and convert to a 32-bit integer
@@ -171,19 +176,31 @@ void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageInde
     };
 };
 
-void printMnistItem(DataItem *item, int imageIndex, int imageSize)
+void printMnistItem(DataItem *items, int imageIndex, int imageSize)
 {
     int side = (int)sqrt((double)imageSize);
+    uint8_t label;
+
+    // Find nonzero label
+    for (int i = 0; i < 10; i++)
+    {
+        if (items[imageIndex].label[i] != 0)
+        {
+
+            label = items[imageIndex].label[i];
+            break;
+        }
+    };
 
     // Print label
-    printf("Label of image is %d.\n", item->label[imageIndex]);
+    printf("Label of image is %d.\n", label);
 
     // Print array with alignment
     for (int i = 0; i < side; i++)
     {
         for (int j = 0; j < side; j++)
         {
-            printf("%3.0f ", item->data[imageIndex][i * side + j]);
+            printf("%1.0f ", items[imageIndex].data[i * side + j]);
         }
         printf("\n");
     };
