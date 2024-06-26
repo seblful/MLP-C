@@ -7,8 +7,9 @@
 
 struct DataItem
 {
+    // double **data;
     double **data;
-    double *label;
+    uint8_t *label;
 };
 
 DataItem *createDataItem(const char *imageFileame,
@@ -18,16 +19,43 @@ DataItem *createDataItem(const char *imageFileame,
                          int labelSize)
 {
     uint8_t **images, *labels;
+    double temp;
+    double tempArr[imageSize];
 
+    // Allocate memory for DataItem
     DataItem *item = (DataItem *)malloc(setSize * sizeof(DataItem));
-    item->data = (double **)malloc(imageSize * sizeof(double));
-    item->label = (double *)malloc(labelSize * sizeof(double));
+
+    item->data = (double **)malloc(setSize * sizeof(double *));
+    for (int i = 0; i < setSize; i++)
+    {
+        item->data[i] = (double *)malloc(imageSize * 2 * sizeof(double));
+    };
+
+    item->label = (uint8_t *)malloc(setSize * sizeof(uint8_t));
 
     // Load images and labels in uint8
     images = read_mnist_images(imageFileame);
     labels = read_mnist_labels(labelFileame);
 
     // Set images and labels data in item in proper format
+    // Iterate in range of set size
+    for (int i = 0; i < setSize; i++)
+    {
+
+        // Convert images to double format and standardize
+        for (int j = 0; j < imageSize; j++)
+        {
+            temp = ((double)images[i][j]) / 255.0;
+            tempArr[j] = temp;
+        };
+        // item->data[i] = images[i];
+        item->data[i] = tempArr;
+        // memcpy(&item->data[i], images[i], sizeof(double));
+        item->label[i] = labels[i];
+    };
+
+    printf("%d\n", item->data[0][320]);
+    printf("%d\n", item->label[0]);
 
     return item;
 };
