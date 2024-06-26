@@ -20,7 +20,6 @@ DataItem *createDataItem(const char *imageFileame,
 {
     uint8_t **images, *labels;
     double temp;
-    double tempArr[imageSize];
 
     // Allocate memory for DataItem
     DataItem *item = (DataItem *)malloc(setSize * sizeof(DataItem));
@@ -28,7 +27,7 @@ DataItem *createDataItem(const char *imageFileame,
     item->data = (double **)malloc(setSize * sizeof(double *));
     for (int i = 0; i < setSize; i++)
     {
-        item->data[i] = (double *)malloc(imageSize * 2 * sizeof(double));
+        item->data[i] = (double *)malloc(imageSize * sizeof(double));
     };
 
     item->label = (uint8_t *)malloc(setSize * sizeof(uint8_t));
@@ -42,20 +41,14 @@ DataItem *createDataItem(const char *imageFileame,
     for (int i = 0; i < setSize; i++)
     {
 
-        // Convert images to double format and standardize
+        // Convert images to double format, standardize them and set to data
         for (int j = 0; j < imageSize; j++)
         {
             temp = ((double)images[i][j]) / 255.0;
-            tempArr[j] = temp;
+            item->data[i][j] = temp;
         };
-        // item->data[i] = images[i];
-        item->data[i] = tempArr;
-        // memcpy(&item->data[i], images[i], sizeof(double));
         item->label[i] = labels[i];
     };
-
-    printf("%d\n", item->data[0][320]);
-    printf("%d\n", item->label[0]);
 
     return item;
 };
