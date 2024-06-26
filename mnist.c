@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <math.h>
 
 #include "mnist.h"
 
@@ -152,20 +153,24 @@ uint8_t *read_mnist_labels(const char *filename)
     return labels;
 };
 
-void printMnist(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex)
+void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageIndex, int imageSize)
 {
-    uint8_t size = 28;
+    int side = (int)sqrt((double)imageSize);
 
     // Print label
     printf("Label of image is %d.\n", labelsArray[imageIndex]);
 
     // Print array with alignment
-    for (int i = 0; i < size; i++)
+    for (int i = 0; i < side; i++)
     {
-        for (int j = 0; j < size; j++)
+        for (int j = 0; j < side; j++)
         {
-            printf("%3d ", imagesArray[imageIndex][i * size + j]);
+            printf("%3d ", imagesArray[imageIndex][i * side + j]);
         }
         printf("\n");
     };
+};
+
+void printMnistItem(DataItem *item, int imageIndex, int imageSize) {
+
 };
