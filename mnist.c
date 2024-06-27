@@ -9,7 +9,7 @@
 struct DataItem
 {
     // double **data;
-    double *data;
+    double *image;
     uint8_t *label;
 };
 
@@ -27,16 +27,15 @@ DataItem *createDataItem(const char *imageFileame,
 
     for (int i = 0; i < setSize; i++)
     {
-        items[i].data = (double *)malloc(imageSize * sizeof(double));
+        items[i].image = (double *)malloc(imageSize * sizeof(double));
         items[i].label = (uint8_t *)malloc(labelSize * sizeof(uint8_t));
+
         // Set all labels to zero
         for (int j = 0; j < labelSize; j++)
         {
             items[i].label[j] = 0;
         };
     };
-
-    // printf("%f\n", items[0].data[0]);
 
     // Load images and labels in uint8
     images = read_mnist_images(imageFileame);
@@ -51,7 +50,7 @@ DataItem *createDataItem(const char *imageFileame,
         for (int j = 0; j < imageSize; j++)
         {
             temp = ((double)images[i][j]) / 255.0;
-            items[i].data[j] = temp;
+            items[i].image[j] = temp;
         };
         items[i].label[labels[i] - 1] = labels[i];
     };
@@ -200,7 +199,7 @@ void printMnistItem(DataItem *items, int imageIndex, int imageSize)
     {
         for (int j = 0; j < side; j++)
         {
-            printf("%1.0f ", items[imageIndex].data[i * side + j]);
+            printf("%1.0f ", items[imageIndex].image[i * side + j]);
         }
         printf("\n");
     };
