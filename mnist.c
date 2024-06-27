@@ -8,7 +8,6 @@
 
 struct DataItem
 {
-    // double **data;
     double *image;
     uint8_t *label;
 };
@@ -52,6 +51,8 @@ DataItem *createDataItem(const char *imageFileame,
             temp = ((double)images[i][j]) / 255.0;
             items[i].image[j] = temp;
         };
+
+        // Set label
         items[i].label[labels[i] - 1] = labels[i];
     };
 
