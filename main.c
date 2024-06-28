@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
+
 #include "mnist.h"
+#include "MLP.h"
 
 // ==== CONSTANTS ====
 #define TRAIN_SIZE 60000
@@ -19,13 +21,16 @@ const char testLabelFilename[] = "data/t10k-labels.idx1-ubyte";
 
 int main()
 {
-    DataItem *trainData, *testData;
+    // DataItem *trainData, *testData;
 
-    // Load train data and test data
-    trainData = createDataItem(trainImageFilename, trainLabelFilename, TRAIN_SIZE, IMAGE_SIZE, LABEL_SIZE);
-    testData = createDataItem(testImageFilename, testLabelFilename, TEST_SIZE, IMAGE_SIZE, LABEL_SIZE);
+    // // Load train data and test data
+    // trainData = createDataItem(trainImageFilename, trainLabelFilename, TRAIN_SIZE, IMAGE_SIZE, LABEL_SIZE);
+    // testData = createDataItem(testImageFilename, testLabelFilename, TEST_SIZE, IMAGE_SIZE, LABEL_SIZE);
 
-    printMnistItem(trainData, 0, IMAGE_SIZE);
+    // printMnistItem(trainData, 0, IMAGE_SIZE);
+
+    double m1[1][255], m2[255][10];
+    printMatrix(1, 255, m1);
 
     return 0;
 };
