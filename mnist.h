@@ -6,7 +6,11 @@
 #include <stdbool.h>
 
 // Structs prototypes
-typedef struct DataItem DataItem;
+typedef struct
+{
+    double *image;
+    double *label;
+} DataItem;
 
 // Function prototypes
 uint32_t read_uint32(FILE *file);
@@ -25,5 +29,7 @@ DataItem *createDataItem(const char *imageFileame,
                          int setSize,
                          int imageSize,
                          int labelSize);
+
+void freeDataItem(DataItem *item, int setSize);
 
 #endif // MNIST_H

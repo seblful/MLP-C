@@ -6,12 +6,6 @@
 
 #include "mnist.h"
 
-struct DataItem
-{
-    double *image;
-    uint8_t *label;
-};
-
 DataItem *createDataItem(const char *imageFileame,
                          const char *labelFileame,
                          int setSize,
@@ -27,7 +21,7 @@ DataItem *createDataItem(const char *imageFileame,
     for (int i = 0; i < setSize; i++)
     {
         items[i].image = (double *)malloc(imageSize * sizeof(double));
-        items[i].label = (uint8_t *)malloc(labelSize * sizeof(uint8_t));
+        items[i].label = (double *)malloc(labelSize * sizeof(double));
 
         // Set all labels to zero
         for (int j = 0; j < labelSize; j++)
@@ -53,11 +47,22 @@ DataItem *createDataItem(const char *imageFileame,
         };
 
         // Set label
-        items[i].label[labels[i] - 1] = labels[i];
+        items[i].label[labels[i] - 1] = (double)labels[i];
     };
+
+    // Free images and labels
+    free(images);
+    free(labels);
 
     return items;
 };
+
+void freeDataItem(DataItem *items, int setSize)
+{
+    free(items);
+
+    return;
+}
 
 // Function to read 4 bytes from a file and convert to a 32-bit integer
 uint32_t read_uint32(FILE *file)
@@ -179,7 +184,7 @@ void printMnistImages(uint8_t **imagesArray, uint8_t *labelsArray, int imageInde
 void printMnistItem(DataItem *items, int imageIndex, int imageSize)
 {
     int side = (int)sqrt((double)imageSize);
-    uint8_t label;
+    double label;
 
     // Find nonzero label
     for (int i = 0; i < 10; i++)
@@ -193,7 +198,7 @@ void printMnistItem(DataItem *items, int imageIndex, int imageSize)
     };
 
     // Print label
-    printf("Label of image is %d.\n", label);
+    printf("Label of image is %.0f.\n", label);
 
     // Print array with alignment
     for (int i = 0; i < side; i++)
