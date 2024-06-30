@@ -1,189 +1,199 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-
-#include "mnist.h"
 #include "MLP.h"
 
-// Function to initialize MLP
-MLP *initializeMLP(int inputSize, int hiddenSize, int outputSize)
+#define RANDOM_WEIGHT() ((double)rand() / RAND_MAX - 0.5)
+
+MLP *initialize_mlp(int input_size, int hidden_size, int output_size)
 {
     MLP *mlp = (MLP *)malloc(sizeof(MLP));
-    mlp->inputSize = inputSize;
-    mlp->hiddenSize = hiddenSize;
-    mlp->outputSize = outputSize;
+    mlp->input_size = input_size;
+    mlp->hidden_size = hidden_size;
+    mlp->output_size = output_size;
 
-    // Allocate memory for weights and biases
-    mlp->weight1 = (double *)malloc(inputSize * hiddenSize * sizeof(double));
-    mlp->weight2 = (double *)malloc(hiddenSize * outputSize * sizeof(double));
-    mlp->bias1 = (double *)malloc(hiddenSize * sizeof(double));
-    mlp->bias2 = (double *)malloc(outputSize * sizeof(double));
+    mlp->input = (double *)malloc(input_size * sizeof(double));
+    mlp->hidden = (double *)malloc(hidden_size * sizeof(double));
+    mlp->output = (double *)malloc(output_size * sizeof(double));
 
-    // Initialize weights and biases with small random values
-    for (int i = 0; i < inputSize * hiddenSize; i++)
+    mlp->weights_input_hidden = (double *)malloc(input_size * hidden_size * sizeof(double));
+    mlp->weights_hidden_output = (double *)malloc(hidden_size * output_size * sizeof(double));
+    mlp->bias_hidden = (double *)malloc(hidden_size * sizeof(double));
+    mlp->bias_output = (double *)malloc(output_size * sizeof(double));
+
+    for (int i = 0; i < input_size * hidden_size; i++)
     {
-        mlp->weight1[i] = ((double)rand() / RAND_MAX) - 0.5;
+        mlp->weights_input_hidden[i] = RANDOM_WEIGHT();
     }
-    for (int i = 0; i < hiddenSize * outputSize; i++)
+    for (int i = 0; i < hidden_size * output_size; i++)
     {
-        mlp->weight2[i] = ((double)rand() / RAND_MAX) - 0.5;
+        mlp->weights_hidden_output[i] = RANDOM_WEIGHT();
     }
-    for (int i = 0; i < hiddenSize; i++)
+    for (int i = 0; i < hidden_size; i++)
     {
-        mlp->bias1[i] = ((double)rand() / RAND_MAX) - 0.5;
+        mlp->bias_hidden[i] = RANDOM_WEIGHT();
     }
-    for (int i = 0; i < outputSize; i++)
+    for (int i = 0; i < output_size; i++)
     {
-        mlp->bias2[i] = ((double)rand() / RAND_MAX) - 0.5;
+        mlp->bias_output[i] = RANDOM_WEIGHT();
     }
 
     return mlp;
 }
 
-// Activation function (Sigmoid)
+void free_mlp(MLP *mlp)
+{
+    free(mlp->input);
+    free(mlp->hidden);
+    free(mlp->output);
+    free(mlp->weights_input_hidden);
+    free(mlp->weights_hidden_output);
+    free(mlp->bias_hidden);
+    free(mlp->bias_output);
+    free(mlp);
+}
+
 double sigmoid(double x)
 {
     return 1.0 / (1.0 + exp(-x));
 }
 
-// Derivative of sigmoid
-double sigmoidDerivative(double x)
+double sigmoid_derivative(double x)
 {
-    double s = sigmoid(x);
-    return s * (1.0 - s);
+    return x * (1.0 - x);
 }
 
-// Forward propagation
-void forward(MLP *mlp, double *input)
+void forward_propagation(MLP *mlp, double *input)
 {
-    // Hidden layer
-    for (int i = 0; i < mlp->hiddenSize; i++)
+    for (int i = 0; i < mlp->input_size; i++)
     {
-        mlp->hiddenLayer[i] = 0;
-        for (int j = 0; j < mlp->inputSize; j++)
-        {
-            mlp->hiddenLayer[i] += input[j] * mlp->weight1[j * mlp->hiddenSize + i];
-        }
-        mlp->hiddenLayer[i] += mlp->bias1[i];
-        mlp->hiddenLayer[i] = sigmoid(mlp->hiddenLayer[i]);
+        mlp->input[i] = input[i];
     }
 
-    // Output layer
-    for (int i = 0; i < mlp->outputSize; i++)
+    for (int j = 0; j < mlp->hidden_size; j++)
     {
-        mlp->outputLayer[i] = 0;
-        for (int j = 0; j < mlp->hiddenSize; j++)
+        double sum = 0.0;
+        for (int i = 0; i < mlp->input_size; i++)
         {
-            mlp->outputLayer[i] += mlp->hiddenLayer[j] * mlp->weight2[j * mlp->outputSize + i];
+            sum += mlp->input[i] * mlp->weights_input_hidden[i * mlp->hidden_size + j];
         }
-        mlp->outputLayer[i] += mlp->bias2[i];
-        mlp->outputLayer[i] = sigmoid(mlp->outputLayer[i]);
+        sum += mlp->bias_hidden[j];
+        mlp->hidden[j] = sigmoid(sum);
+    }
+
+    for (int k = 0; k < mlp->output_size; k++)
+    {
+        double sum = 0.0;
+        for (int j = 0; j < mlp->hidden_size; j++)
+        {
+            sum += mlp->hidden[j] * mlp->weights_hidden_output[j * mlp->output_size + k];
+        }
+        sum += mlp->bias_output[k];
+        mlp->output[k] = sigmoid(sum);
     }
 }
 
-// Backward propagation
-void backward(MLP *mlp, double *input, double *target, double learningRate)
+void backpropagation(MLP *mlp, double *target, double learning_rate)
 {
-    double *outputError = (double *)malloc(mlp->outputSize * sizeof(double));
-    double *hiddenError = (double *)malloc(mlp->hiddenSize * sizeof(double));
+    double *output_errors = (double *)malloc(mlp->output_size * sizeof(double));
+    double *hidden_errors = (double *)malloc(mlp->hidden_size * sizeof(double));
 
-    // Calculate output error
-    for (int i = 0; i < mlp->outputSize; i++)
+    for (int k = 0; k < mlp->output_size; k++)
     {
-        outputError[i] = (target[i] - mlp->outputLayer[i]) * sigmoidDerivative(mlp->outputLayer[i]);
+        output_errors[k] = target[k] - mlp->output[k];
     }
 
-    // Calculate hidden layer error
-    for (int i = 0; i < mlp->hiddenSize; i++)
+    for (int j = 0; j < mlp->hidden_size; j++)
     {
-        hiddenError[i] = 0;
-        for (int j = 0; j < mlp->outputSize; j++)
+        double error = 0.0;
+        for (int k = 0; k < mlp->output_size; k++)
         {
-            hiddenError[i] += outputError[j] * mlp->weight2[i * mlp->outputSize + j];
+            error += output_errors[k] * mlp->weights_hidden_output[j * mlp->output_size + k];
         }
-        hiddenError[i] *= sigmoidDerivative(mlp->hiddenLayer[i]);
+        hidden_errors[j] = error * sigmoid_derivative(mlp->hidden[j]);
     }
 
-    // Update weights and biases for the second layer
-    for (int i = 0; i < mlp->outputSize; i++)
+    for (int j = 0; j < mlp->hidden_size; j++)
     {
-        for (int j = 0; j < mlp->hiddenSize; j++)
+        for (int k = 0; k < mlp->output_size; k++)
         {
-            mlp->weight2[j * mlp->outputSize + i] += learningRate * outputError[i] * mlp->hiddenLayer[j];
+            mlp->weights_hidden_output[j * mlp->output_size + k] += learning_rate * output_errors[k] * mlp->hidden[j];
         }
-        mlp->bias2[i] += learningRate * outputError[i];
     }
 
-    // Update weights and biases for the first layer
-    for (int i = 0; i < mlp->hiddenSize; i++)
+    for (int k = 0; k < mlp->output_size; k++)
     {
-        for (int j = 0; j < mlp->inputSize; j++)
-        {
-            mlp->weight1[j * mlp->hiddenSize + i] += learningRate * hiddenError[i] * input[j];
-        }
-        mlp->bias1[i] += learningRate * hiddenError[i];
+        mlp->bias_output[k] += learning_rate * output_errors[k];
     }
 
-    // Free allocated memory for errors
-    free(outputError);
-    free(hiddenError);
+    for (int i = 0; i < mlp->input_size; i++)
+    {
+        for (int j = 0; j < mlp->hidden_size; j++)
+        {
+            mlp->weights_input_hidden[i * mlp->hidden_size + j] += learning_rate * hidden_errors[j] * mlp->input[i];
+        }
+    }
+
+    for (int j = 0; j < mlp->hidden_size; j++)
+    {
+        mlp->bias_hidden[j] += learning_rate * hidden_errors[j];
+    }
+
+    free(output_errors);
+    free(hidden_errors);
 }
 
-// Train MLP
-void trainMLP(MLP *mlp, DataItem *trainData, int trainSize, int epochs, double learningRate)
+double compute_loss(double *output, double *target, int size)
+{
+    double loss = 0.0;
+    for (int i = 0; i < size; i++)
+    {
+        loss += 0.5 * (target[i] - output[i]) * (target[i] - output[i]);
+    }
+    return loss;
+}
+
+void train(MLP *mlp, DataItem *train_data, int train_size, int epochs, double learning_rate)
 {
     for (int epoch = 0; epoch < epochs; epoch++)
     {
-        double totalError = 0;
-        for (int i = 0; i < trainSize; i++)
+        double total_loss = 0.0;
+        for (int i = 0; i < train_size; i++)
         {
-            forward(mlp, trainData[i].image);
-            backward(mlp, trainData[i].image, trainData[i].label, learningRate);
-
-            // Calculate error
-            for (int j = 0; j < mlp->outputSize; j++)
-            {
-                double error = trainData[i].label[j] - mlp->outputLayer[j];
-                totalError += error * error;
-            }
+            forward_propagation(mlp, train_data[i].image);
+            total_loss += compute_loss(mlp->output, train_data[i].label, mlp->output_size);
+            backpropagation(mlp, train_data[i].label, learning_rate);
         }
-        printf("Epoch %d, Error: %f\n", epoch + 1, totalError / trainSize);
+        printf("Epoch %d, Loss: %f\n", epoch + 1, total_loss / train_size);
     }
 }
 
-// Evaluate MLP
-double evaluateMLP(MLP *mlp, DataItem *testData, int testSize)
+double evaluate(MLP *mlp, DataItem *test_data, int test_size)
 {
-    int correct = 0;
-    for (int i = 0; i < testSize; i++)
+    int correct_predictions = 0;
+    for (int i = 0; i < test_size; i++)
     {
-        forward(mlp, testData[i].image);
-        int predicted = 0, actual = 0;
-        for (int j = 0; j < mlp->outputSize; j++)
+        forward_propagation(mlp, test_data[i].image);
+
+        int predicted_label = 0;
+        int actual_label = 0;
+
+        for (int j = 0; j < mlp->output_size; j++)
         {
-            if (mlp->outputLayer[j] > mlp->outputLayer[predicted])
+            if (mlp->output[j] > mlp->output[predicted_label])
             {
-                predicted = j;
+                predicted_label = j;
             }
-            if (testData[i].label[j] == 1)
+            if (test_data[i].label[j] > 0)
             {
-                actual = j;
+                actual_label = j;
             }
         }
-        if (predicted == actual)
+
+        if (predicted_label == actual_label)
         {
-            correct++;
+            correct_predictions++;
         }
     }
-    return (double)correct / testSize;
-}
-
-// Free MLP memory
-void freeMLP(MLP *mlp)
-{
-    free(mlp->weight1);
-    free(mlp->weight2);
-    free(mlp->bias1);
-    free(mlp->bias2);
-    free(mlp);
+    return (double)correct_predictions / test_size;
 }

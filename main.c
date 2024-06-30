@@ -22,29 +22,25 @@ int main()
     DataItem *trainData = createDataItem(trainImageFilename, trainLabelFilename, TRAIN_SIZE, IMAGE_SIZE, LABEL_SIZE);
     DataItem *testData = createDataItem(testImageFilename, testLabelFilename, TEST_SIZE, IMAGE_SIZE, LABEL_SIZE);
 
-    printMnistItem(trainData, 0, IMAGE_SIZE);
-
     // Initialize MLP
-    int inputSize = IMAGE_SIZE;
-    int hiddenSize = 100; // Example hidden layer size, you can change it
-    int outputSize = LABEL_SIZE;
-    MLP *mlp = initializeMLP(inputSize, hiddenSize, outputSize);
+    int input_size = IMAGE_SIZE;
+    int hidden_size = 24; // Example hidden layer size
+    int output_size = LABEL_SIZE;
+    MLP *mlp = initialize_mlp(input_size, hidden_size, output_size);
 
-    // Training parameters
-    int epochs = 0;
-    double learningRate = 0.01;
+    // Train MLP
+    int epochs = 10;
+    double learning_rate = 0.01;
+    train(mlp, trainData, TRAIN_SIZE, epochs, learning_rate);
 
-    // Train the MLP
-    trainMLP(mlp, trainData, TRAIN_SIZE, epochs, learningRate);
+    // Evaluate MLP
+    double accuracy = evaluate(mlp, testData, TEST_SIZE);
+    printf("Accuracy: %f\n", accuracy);
 
-    // Evaluate the MLP
-    double accuracy = evaluateMLP(mlp, testData, TEST_SIZE);
-    printf("Evaluation Accuracy: %f%%\n", accuracy * 100);
-
-    // Free allocated memory
-    freeMLP(mlp);
+    // Free resources
     freeDataItem(trainData, TRAIN_SIZE);
     freeDataItem(testData, TEST_SIZE);
+    free_mlp(mlp);
 
     return 0;
-};
+}
