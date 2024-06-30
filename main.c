@@ -22,25 +22,24 @@ int main()
     DataItem *trainData = createDataItem(trainImageFilename, trainLabelFilename, TRAIN_SIZE, IMAGE_SIZE, LABEL_SIZE);
     DataItem *testData = createDataItem(testImageFilename, testLabelFilename, TEST_SIZE, IMAGE_SIZE, LABEL_SIZE);
 
-    // Initialize MLP
-    int input_size = IMAGE_SIZE;
+    // Initialize network
     int hidden_size = 24; // Example hidden layer size
-    int output_size = LABEL_SIZE;
-    MLP *mlp = initialize_mlp(input_size, hidden_size, output_size);
-
-    // Train MLP
-    int epochs = 10;
     double learning_rate = 0.01;
-    train(mlp, trainData, TRAIN_SIZE, epochs, learning_rate);
+    int epochs = 10;
 
-    // Evaluate MLP
-    double accuracy = evaluate(mlp, testData, TEST_SIZE);
-    printf("Accuracy: %f\n", accuracy);
+    MLP *network = initialize_network(IMAGE_SIZE, hidden_size, LABEL_SIZE);
 
-    // Free resources
+    // Train the network
+    train(network, trainData, TRAIN_SIZE, epochs, learning_rate);
+
+    // Evaluate the network
+    double accuracy = evaluate(network, testData, TEST_SIZE);
+    printf("Test Accuracy: %f\n", accuracy);
+
+    // Free memory
     freeDataItem(trainData, TRAIN_SIZE);
     freeDataItem(testData, TEST_SIZE);
-    free_mlp(mlp);
+    free_network(network);
 
     return 0;
 }
