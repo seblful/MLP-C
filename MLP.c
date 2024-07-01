@@ -54,10 +54,10 @@ MLP *initialize_network(int input_size, int hidden_size, int output_size)
         network->input_hidden_weights[i] = (double *)calloc(hidden_size, sizeof(double));
     }
 
-    network->hidden_output_weights = (double **)malloc(hidden_size * sizeof(double *));
+    network->output_hidden_weights = (double **)malloc(hidden_size * sizeof(double *));
     for (int i = 0; i < hidden_size; i++)
     {
-        network->hidden_output_weights[i] = (double *)calloc(output_size, sizeof(double));
+        network->output_hidden_weights[i] = (double *)calloc(output_size, sizeof(double));
     }
 
     network->hidden_delta = (double *)calloc(hidden_size, sizeof(double));
@@ -76,7 +76,7 @@ MLP *initialize_network(int input_size, int hidden_size, int output_size)
     {
         for (int j = 0; j < output_size; j++)
         {
-            network->hidden_output_weights[i][j] = ((double)rand() / RAND_MAX) - 0.5;
+            network->output_hidden_weights[i][j] = ((double)rand() / RAND_MAX) - 0.5;
         }
     }
 
@@ -113,7 +113,7 @@ void forward_propagation(MLP *network, double *input)
         network->output[i] = 0;
         for (int j = 0; j < network->hidden_size; j++)
         {
-            network->output[i] += network->hidden[j] * network->hidden_output_weights[j][i];
+            network->output[i] += network->hidden[j] * network->output_hidden_weights[j][i];
         }
         network->output[i] += network->output_bias[i];
     }
@@ -123,8 +123,6 @@ void forward_propagation(MLP *network, double *input)
 
 void backpropagation(MLP *network, double *input, double *target, double learning_rate)
 {
-    forward_propagation(network, input);
-
     // Calculate output layer delta
     for (int i = 0; i < network->output_size; i++)
     {
@@ -137,7 +135,7 @@ void backpropagation(MLP *network, double *input, double *target, double learnin
         network->hidden_delta[i] = 0;
         for (int j = 0; j < network->output_size; j++)
         {
-            network->hidden_delta[i] += network->output_delta[j] * network->hidden_output_weights[i][j];
+            network->hidden_delta[i] += network->output_delta[j] * network->output_hidden_weights[i][j];
         }
         network->hidden_delta[i] *= relu_derivative(network->hidden[i]);
     }
@@ -153,7 +151,7 @@ void update_weights(MLP *network, double learning_rate)
     {
         for (int j = 0; j < network->output_size; j++)
         {
-            network->hidden_output_weights[i][j] -= learning_rate * network->output_delta[j] * network->hidden[i];
+            network->output_hidden_weights[i][j] -= learning_rate * network->output_delta[j] * network->hidden[i];
         }
     }
 
@@ -245,9 +243,9 @@ void free_network(MLP *network)
 
     for (int i = 0; i < network->hidden_size; i++)
     {
-        free(network->hidden_output_weights[i]);
+        free(network->output_hidden_weights[i]);
     }
-    free(network->hidden_output_weights);
+    free(network->output_hidden_weights);
 
     free(network->hidden_delta);
     free(network->output_delta);

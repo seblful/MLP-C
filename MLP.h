@@ -19,7 +19,7 @@ typedef struct
     double *hidden_bias;
     double *output_bias;
     double **input_hidden_weights;
-    double **hidden_output_weights;
+    double **output_hidden_weights;
     double *hidden_delta;
     double *output_delta;
 } MLP;
