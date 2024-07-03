@@ -1,13 +1,14 @@
 #include "MLP.h"
 
-double relu(double x)
+double tanh(double x)
 {
-    return x > 0 ? x : 0;
+    return (exp(x) - exp(-x)) / (exp(x) + exp(-x));
 }
 
-double relu_derivative(double x)
+double tanh_deriv(double x)
 {
-    return x > 0 ? 1 : 0;
+    double t = tanh(x);
+    return 1.0 - (t * t);
 }
 
 void softmax(double *output, int size)
@@ -22,7 +23,6 @@ void softmax(double *output, int size)
     for (int i = 0; i < size; i++)
     {
         output[i] /= sum;
-        printf("%f\n", output[i]);
     }
 }
 
@@ -95,7 +95,7 @@ void forward_propagation(MLP *network, double *input)
             network->hidden[i] += input[j] * network->input_hidden_weights[j][i];
         }
         network->hidden[i] += network->hidden_bias[i];
-        network->hidden[i] = relu(network->hidden[i]);
+        network->hidden[i] = tanh(network->hidden[i]);
     }
 
     for (int i = 0; i < network->output_size; i++)
@@ -113,6 +113,7 @@ void forward_propagation(MLP *network, double *input)
 
 void backpropagation(MLP *network, double *input, double *target, double learning_rate)
 {
+
     // Calculate output layer delta
     for (int i = 0; i < network->output_size; i++)
     {
@@ -123,11 +124,12 @@ void backpropagation(MLP *network, double *input, double *target, double learnin
     for (int i = 0; i < network->hidden_size; i++)
     {
         network->hidden_delta[i] = 0;
+
         for (int j = 0; j < network->output_size; j++)
         {
             network->hidden_delta[i] += network->output_delta[j] * network->output_hidden_weights[i][j];
         }
-        network->hidden_delta[i] *= relu_derivative(network->hidden[i]);
+        network->hidden_delta[i] *= tanh_deriv(network->hidden[i]);
     }
 
     // Update weights and biases
