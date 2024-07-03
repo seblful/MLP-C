@@ -41,7 +41,6 @@ MLP *initialize_network(int input_size, int hidden_size, int output_size)
     network->hidden_size = hidden_size;
     network->output_size = output_size;
 
-    network->input = (double *)calloc(input_size, sizeof(double));
     network->hidden = (double *)calloc(hidden_size, sizeof(double));
     network->output = (double *)calloc(output_size, sizeof(double));
 
@@ -95,14 +94,13 @@ MLP *initialize_network(int input_size, int hidden_size, int output_size)
 
 void forward_propagation(MLP *network, double *input)
 {
-    memcpy(network->input, input, network->input_size * sizeof(double));
 
     for (int i = 0; i < network->hidden_size; i++)
     {
         network->hidden[i] = 0;
         for (int j = 0; j < network->input_size; j++)
         {
-            network->hidden[i] += network->input[j] * network->input_hidden_weights[j][i];
+            network->hidden[i] += input[j] * network->input_hidden_weights[j][i];
         }
         network->hidden[i] += network->hidden_bias[i];
         network->hidden[i] = relu(network->hidden[i]);
@@ -141,10 +139,10 @@ void backpropagation(MLP *network, double *input, double *target, double learnin
     }
 
     // Update weights and biases
-    update_weights(network, learning_rate);
+    update_weights(network, input, learning_rate);
 }
 
-void update_weights(MLP *network, double learning_rate)
+void update_weights(MLP *network, double *input, double learning_rate)
 {
     // Update hidden-output weights and biases
     for (int i = 0; i < network->hidden_size; i++)
@@ -165,7 +163,7 @@ void update_weights(MLP *network, double learning_rate)
     {
         for (int j = 0; j < network->hidden_size; j++)
         {
-            network->input_hidden_weights[i][j] -= learning_rate * network->hidden_delta[j] * network->input[i];
+            network->input_hidden_weights[i][j] -= learning_rate * network->hidden_delta[j] * input[i];
         }
     }
 
@@ -229,7 +227,6 @@ double evaluate(MLP *network, DataItem *test_data, int test_size)
 
 void free_network(MLP *network)
 {
-    free(network->input);
     free(network->hidden);
     free(network->output);
     free(network->hidden_bias);

@@ -13,7 +13,6 @@ typedef struct
     int input_size;
     int hidden_size;
     int output_size;
-    double *input;
     double *hidden;
     double *output;
     double *hidden_bias;
@@ -28,7 +27,7 @@ typedef struct
 MLP *initialize_network(int input_size, int hidden_size, int output_size);
 void forward_propagation(MLP *network, double *input);
 void backpropagation(MLP *network, double *input, double *target, double learning_rate);
-void update_weights(MLP *network, double learning_rate);
+void update_weights(MLP *network, double *input, double learning_rate);
 double calculate_error(double *output, double *target, int size);
 void train(MLP *network, DataItem *train_data, int train_size, int epochs, double learning_rate);
 double evaluate(MLP *network, DataItem *test_data, int test_size);
