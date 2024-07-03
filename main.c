@@ -23,8 +23,8 @@ int main()
     DataItem *testData = createDataItem(testImageFilename, testLabelFilename, TEST_SIZE, IMAGE_SIZE, LABEL_SIZE);
 
     // Initialize network
-    int hidden_size = 24; // Example hidden layer size
-    double learning_rate = 0.01;
+    int hidden_size = 24; // Hidden layer size
+    double learning_rate = 0.000001;
     int epochs = 10;
 
     MLP *network = initialize_network(IMAGE_SIZE, hidden_size, LABEL_SIZE);
@@ -34,7 +34,7 @@ int main()
 
     // Evaluate the network
     double accuracy = evaluate(network, testData, TEST_SIZE);
-    printf("Test Accuracy: %f\n", accuracy);
+    printf("Test Accuracy: %.2f%%\n", accuracy * 100);
 
     // Free memory
     freeDataItem(trainData, TRAIN_SIZE);
