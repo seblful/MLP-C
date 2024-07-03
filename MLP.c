@@ -12,25 +12,17 @@ double relu_derivative(double x)
 
 void softmax(double *output, int size)
 {
-    double max = output[0];
-    for (int i = 1; i < size; i++)
-    {
-        if (output[i] > max)
-        {
-            max = output[i];
-        }
-    }
-
     double sum = 0;
     for (int i = 0; i < size; i++)
     {
-        output[i] = exp(output[i] - max);
+        output[i] = exp(output[i]);
         sum += output[i];
     }
 
     for (int i = 0; i < size; i++)
     {
         output[i] /= sum;
+        printf("%f\n", output[i]);
     }
 }
 
