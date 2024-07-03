@@ -192,25 +192,29 @@ void train(MLP *network, DataItem *train_data, int train_size, int epochs, doubl
     }
 }
 
+int argmax(double *array, int size)
+{
+    int max_index = 0;
+    double max_value = array[0];
+    for (int i = 1; i < size; i++)
+    {
+        if (array[i] > max_value)
+        {
+            max_index = i;
+            max_value = array[i];
+        }
+    }
+    return max_index;
+}
+
 double evaluate(MLP *network, DataItem *test_data, int test_size)
 {
     int correct_predictions = 0;
     for (int i = 0; i < test_size; i++)
     {
         forward_propagation(network, test_data[i].image);
-        int predicted_label = 0;
-        int actual_label = 0;
-        for (int j = 0; j < network->output_size; j++)
-        {
-            if (network->output[j] > network->output[predicted_label])
-            {
-                predicted_label = j;
-            }
-            if (test_data[i].label[j] == 1.0)
-            {
-                actual_label = j;
-            }
-        }
+        int predicted_label = argmax(network->output, network->output_size);
+        int actual_label = argmax(test_data[i].label, network->output_size);
         if (predicted_label == actual_label)
         {
             correct_predictions++;
