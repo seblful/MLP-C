@@ -1,5 +1,7 @@
 # Data
 data/
+build/
+out/
 
 # Cache
 .vscode
